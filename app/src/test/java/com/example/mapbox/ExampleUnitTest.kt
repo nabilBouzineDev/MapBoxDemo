@@ -1,4 +1,4 @@
-package com.example.googlemaptest
+package com.example.mapbox
 
 import org.junit.Test
 

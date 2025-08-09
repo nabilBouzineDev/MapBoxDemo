@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.googlemaptest"
+    namespace = "com.example.mapbox"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.googlemaptest"
+        applicationId = "com.example.mapbox"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

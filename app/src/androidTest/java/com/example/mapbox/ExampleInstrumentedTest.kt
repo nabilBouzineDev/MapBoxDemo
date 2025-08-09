@@ -1,4 +1,4 @@
-package com.example.googlemaptest
+package com.example.mapbox
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
