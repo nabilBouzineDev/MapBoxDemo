@@ -45,6 +45,10 @@ dependencies {
     // room
     ksp(libs.androidx.room.compiler)
 
+    // mapbox
+    implementation(libs.mapbox.maps.android)
+    implementation(libs.mapbox.maps.compose)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
