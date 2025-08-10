@@ -11,6 +11,7 @@ activityCompose = "1.10.1"
 composeBom = "2024.09.00"
 ksp = "2.0.21-1.0.27"
 roomCompiler = "2.7.2"
+koin = "4.0.4"
 
 [libraries]
 mapbox-maps-android = { module = "com.mapbox.maps:android", version.ref = "mapbox" }
@@ -30,6 +31,9 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core" , version.ref = "koin"}
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -37,3 +41,10 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
+[bundles]
+koin = [
+    "koin-android", "koin-androidx-compose", "koin-core"
+]
+mapbox = [
+    "mapbox-maps-android", "mapbox-maps-compose"
+]
