@@ -10,6 +10,7 @@ data class MapBoxUiState(
         Constants.DEFAULT_LONGITUDE,
         Constants.DEFAULT_LATITUDE
     ),
+    val areaName: String = "",
     val openAreaDialogue: Boolean = false,
     val isLoading: Boolean = false,
     val errorState: String? = null
