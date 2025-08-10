@@ -7,7 +7,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mapbox.R
@@ -16,13 +15,13 @@ import com.example.mapbox.presentation.component.AreaNameTextField
 import com.example.mapbox.presentation.component.ConfirmationButton
 import com.example.mapbox.presentation.ui.currentColor
 import com.example.mapbox.presentation.utils.isPolygonClosed
+import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
-import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
+import com.mapbox.maps.extension.compose.annotation.generated.CircleAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotation
-import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
 import com.mapbox.maps.extension.compose.style.standard.rememberStandardStyleState
 import org.koin.androidx.compose.koinViewModel
@@ -38,7 +37,7 @@ fun MapScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, MapboxExperimental::class)
 @Composable
 fun MapBoxContent(
     state: MapBoxUiState,
@@ -57,7 +56,7 @@ fun MapBoxContent(
                     .padding(horizontal = 8.dp)
                     .navigationBarsPadding(),
 
-                leadingIcon = R.drawable.ic_launcher_foreground
+                leadingIcon = R.drawable.rounded_location_on_24
             )
             ConfirmationButton(
                 title = "Save",
@@ -94,20 +93,18 @@ fun MapBoxContent(
         logo = {},
         scaleBar = {}
     ) {
-        val markImage = rememberIconImage(
-            R.drawable.ic_launcher_foreground,
-            painterResource(R.drawable.ic_launcher_foreground)
-        )
-
         state.polygon.forEach { point ->
-            PointAnnotation(point = point) {
-                iconImage = markImage
+            CircleAnnotation(point = point) {
+                circleColor = currentColor.primary
+                circleStrokeWidth = 2.0
+                circleStrokeColor = currentColor.primary
             }
         }
 
         PolylineAnnotation(points = state.polygon) {
             lineColor = currentColor.primary
             lineWidth = 5.0
+            lineOpacity = 0.75
         }
 
         if (state.polygon.isPolygonClosed()) {
