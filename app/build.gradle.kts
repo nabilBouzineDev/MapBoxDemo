@@ -9,6 +9,7 @@ android {
     namespace = "com.example.mapbox"
     compileSdk = 36
 
+
     defaultConfig {
         applicationId = "com.example.mapbox"
         minSdk = 24
@@ -43,7 +44,8 @@ android {
 dependencies {
 
     // room
-    ksp(libs.androidx.room.compiler)
+    ksp(libs.room.androidx.compiler)
+    implementation(libs.room.androidx.runtime)
 
     // mapbox
     implementation(libs.bundles.mapbox)

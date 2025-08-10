@@ -4,17 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mapbox.presentation.utils.isPolygonClosed
 import com.example.mapbox.presentation.utils.nearTo
+import com.example.mapbox.service.PolygonAreaService
 import com.mapbox.geojson.Point
-import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MapBoxViewModel() : ViewModel() {
+class PolygonAreaViewModel(
+    private val polygonAreaService: PolygonAreaService
+) : ViewModel() {
 
-    private val _state = MutableStateFlow(MapBoxUiState())
+    private val _state = MutableStateFlow(PolygonUiState())
     val state = _state.asStateFlow()
 
     init {
@@ -24,7 +26,10 @@ class MapBoxViewModel() : ViewModel() {
     fun onClearPoints(): Boolean {
         _state.update {
             it.copy(
-                polygon = _state.value.polygon.toMutableList().also { it.clear() }.toList()
+                polygon = _state.value.polygon
+                    .toMutableList()
+                    .also { points -> points.clear() }
+                    .toList()
             )
         }
         return true
@@ -40,7 +45,7 @@ class MapBoxViewModel() : ViewModel() {
         return true
     }
 
-    fun onPolygonClick(annotation: PolygonAnnotation): Boolean {
+    fun onPolygonClick(): Boolean {
         _state.update {
             it.copy(
                 openAreaDialogue = true
@@ -66,7 +71,12 @@ class MapBoxViewModel() : ViewModel() {
     }
 
     fun onSavePolygonClick() {
-        // todo: insert to database
+        viewModelScope.launch {
+            polygonAreaService.insertPolygon(
+                _state.value.toAreaEntity(),
+                _state.value.toPolygonPointEntities()
+            )
+        }
         onDismissDialogue()
         clearDialogueState()
     }
@@ -79,7 +89,10 @@ class MapBoxViewModel() : ViewModel() {
     private fun addPointToPolygon(point: Point) {
         _state.update {
             it.copy(
-                polygon = it.polygon.toMutableList().also { it.add(point) }.toList(),
+                polygon = it.polygon
+                    .toMutableList()
+                    .also { points -> points.add(point) }
+                    .toList(),
             )
         }
     }

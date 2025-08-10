@@ -28,7 +28,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MapScreen(
-    viewModel: MapBoxViewModel = koinViewModel()
+    viewModel: PolygonAreaViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     MapBoxContent(
@@ -40,8 +40,8 @@ fun MapScreen(
 @OptIn(ExperimentalMaterial3Api::class, MapboxExperimental::class)
 @Composable
 fun MapBoxContent(
-    state: MapBoxUiState,
-    viewModel: MapBoxViewModel,
+    state: PolygonUiState,
+    viewModel: PolygonAreaViewModel,
     modifier: Modifier = Modifier
 ) {
 
@@ -111,7 +111,9 @@ fun MapBoxContent(
             PolygonAnnotation(points = listOf(state.polygon)) {
                 fillColor = currentColor.primary
                 fillOpacity = 0.4
-                interactionsState.onClicked(onClick = viewModel::onPolygonClick)
+                interactionsState.onClicked {
+                    viewModel.onPolygonClick()
+                }
             }
         }
     }
