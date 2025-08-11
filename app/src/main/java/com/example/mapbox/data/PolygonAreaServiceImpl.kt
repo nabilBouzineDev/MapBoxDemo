@@ -4,13 +4,21 @@ import androidx.room.Transaction
 import com.example.mapbox.data.entity.AreaEntity
 import com.example.mapbox.data.entity.PolygonPointCrossRef
 import com.example.mapbox.data.entity.PolygonPointEntity
+import com.example.mapbox.data.relation.PolygonWithArea
 import com.example.mapbox.service.PolygonAreaService
+import kotlinx.coroutines.flow.Flow
 
 class PolygonAreaServiceImpl(
     private val polygonDao: PolygonDao
 ) : PolygonAreaService {
 
-    override suspend fun getAllPolygons() = polygonDao.getAllPolygons()
+    override fun getPolygonAreaNames(): Flow<List<AreaEntity>> {
+        return polygonDao.getPolygonAreaNames()
+    }
+
+    override suspend fun getPolygonByAreaName(areaName: String): List<PolygonWithArea> {
+        return polygonDao.getPolygonByAreaName(areaName)
+    }
 
     @Transaction
     override suspend fun insertPolygon(

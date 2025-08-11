@@ -1,4 +1,4 @@
-package com.example.mapbox.data.entity.relation
+package com.example.mapbox.data.relation
 
 import androidx.room.Embedded
 import androidx.room.Junction
@@ -8,11 +8,11 @@ import com.example.mapbox.data.entity.PolygonPointCrossRef
 import com.example.mapbox.data.entity.PolygonPointEntity
 
 
-data class PolygonWithPoints(
-    @Embedded val polygon: AreaEntity,
+data class PolygonWithArea(
+    @Embedded val area: AreaEntity,
     @Relation(
         parentColumn = "areaName",
-        entityColumn = "pointId",
+        entityColumn = "polygonId",
         associateBy = Junction(PolygonPointCrossRef::class)
     )
     val points: List<PolygonPointEntity>

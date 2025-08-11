@@ -8,11 +8,11 @@ import com.mapbox.geojson.Point
 
 data class PolygonUiState(
     val polygon: List<Point> = emptyList(),
-    val selectedPoint: Point = Point.fromLngLat(
-        Constants.DEFAULT_LONGITUDE,
-        Constants.DEFAULT_LATITUDE
-    ),
+    val startZoomAnimation: Boolean = false,
+    val savedAreaNames: List<String> = emptyList(),
+    val selectedPoint: Point = Constants.defaultStartingPoint,
     val areaName: String = "",
+    val selectedAreaName: String = "",
     val openAreaDialogue: Boolean = false,
     val isLoading: Boolean = false,
     val errorState: String? = null
@@ -22,7 +22,7 @@ data class PolygonUiState(
     )
 
     fun toPolygonPointEntities(): List<PolygonPointEntity> {
-       return polygon.map { it.toPolygonPointEntity() }
+        return polygon.map { it.toPolygonPointEntity() }
     }
 
     private fun Point.toPolygonPointEntity() = PolygonPointEntity(

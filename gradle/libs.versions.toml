@@ -13,6 +13,7 @@ ksp = "2.0.21-1.0.27"
 room = "2.7.2"
 koin = "4.0.4"
 
+
 [libraries]
 mapbox-maps-android = { module = "com.mapbox.maps:android", version.ref = "mapbox" }
 mapbox-maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapbox" }

@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -80,7 +81,7 @@ fun AreaNameTextField(
                     targetValue = if (text.isEmpty()) currentColor.hint else currentColor.stroke
                 )
                 LeadingIcon(leadingIcon, imageColor)
-                VerticalDivider()
+                VerticalDivider(imageColor)
             }
             BasicTextField(
                 value = text,
@@ -137,12 +138,14 @@ private fun InnerTextFieldWithHint(
 }
 
 @Composable
-private fun VerticalDivider() {
+private fun VerticalDivider(
+    color: Color
+) {
     Box(
         Modifier
             .padding(horizontal = 12.dp, vertical = 13.dp)
             .size(1.dp, 30.dp)
-            .background(currentColor.stroke)
+            .background(color)
     )
 }
 
@@ -156,5 +159,13 @@ private fun LeadingIcon(leadingIcon: Int, imageColor: Color) {
         modifier = Modifier
             .padding(vertical = 16.dp)
             .size(24.dp)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AreaNameTextFieldPreview() {
+    AreaNameTextField(
+        text = "HI World"
     )
 }

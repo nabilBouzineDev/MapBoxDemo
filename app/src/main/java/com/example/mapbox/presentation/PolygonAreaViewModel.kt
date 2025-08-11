@@ -2,13 +2,20 @@ package com.example.mapbox.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mapbox.data.entity.AreaEntity
+import com.example.mapbox.data.relation.PolygonWithArea
+import com.example.mapbox.presentation.mapper.toPoints
 import com.example.mapbox.presentation.utils.isPolygonClosed
 import com.example.mapbox.presentation.utils.nearTo
 import com.example.mapbox.service.PolygonAreaService
 import com.mapbox.geojson.Point
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -20,7 +27,16 @@ class PolygonAreaViewModel(
     val state = _state.asStateFlow()
 
     init {
+        observeAreaNames()
         observeUpdatedPolygon()
+    }
+
+    fun onSavedAreaClick(areaName: String) {
+        safeCallAction(
+            action = { polygonAreaService.getPolygonByAreaName(areaName) },
+            onSuccess = ::onSaveAreaSuccess,
+            onFailure = ::onError
+        )
     }
 
     fun onClearPoints(): Boolean {
@@ -29,7 +45,8 @@ class PolygonAreaViewModel(
                 polygon = _state.value.polygon
                     .toMutableList()
                     .also { points -> points.clear() }
-                    .toList()
+                    .toList(),
+                startZoomAnimation = false
             )
         }
         return true
@@ -38,7 +55,8 @@ class PolygonAreaViewModel(
     fun onAddPoint(point: Point): Boolean {
         _state.update {
             it.copy(
-                selectedPoint = point
+                selectedPoint = point,
+                startZoomAnimation = false
             )
         }
         observeUpdatedPolygon() ?: addPointToPolygon(point)
@@ -48,7 +66,8 @@ class PolygonAreaViewModel(
     fun onPolygonClick(): Boolean {
         _state.update {
             it.copy(
-                openAreaDialogue = true
+                openAreaDialogue = true,
+                startZoomAnimation = false
             )
         }
         return true
@@ -57,7 +76,8 @@ class PolygonAreaViewModel(
     fun onDismissDialogue() {
         _state.update {
             it.copy(
-                openAreaDialogue = false
+                openAreaDialogue = false,
+                startZoomAnimation = false
             )
         }
     }
@@ -65,23 +85,41 @@ class PolygonAreaViewModel(
     fun onAreaNameChange(newAreaName: String) {
         _state.update {
             it.copy(
-                areaName = newAreaName
+                areaName = newAreaName,
+                startZoomAnimation = false
             )
         }
     }
 
     fun onSavePolygonClick() {
-        viewModelScope.launch {
-            polygonAreaService.insertPolygon(
-                _state.value.toAreaEntity(),
-                _state.value.toPolygonPointEntities()
-            )
-        }
+        safeCallAction(
+            action = {
+                polygonAreaService.insertPolygon(
+                    area = _state.value.toAreaEntity(),
+                    polygonPoints = _state.value.toPolygonPointEntities()
+                )
+            },
+            onSuccess = { onSavePolygonSuccess() },
+            onFailure = ::onError
+        )
+    }
+
+    fun onCancelPolygonClick() {
         onDismissDialogue()
         clearDialogueState()
     }
 
-    fun onCancelPolygonClick() {
+    private fun onSaveAreaSuccess(polygon: List<PolygonWithArea>) {
+        _state.update { currentState ->
+            currentState.copy(
+                polygon = polygon.map { it.points.toPoints() }.last(),
+                startZoomAnimation = true
+            )
+        }
+    }
+
+    private fun onSavePolygonSuccess() {
+        observeAreaNames()
         onDismissDialogue()
         clearDialogueState()
     }
@@ -93,6 +131,24 @@ class PolygonAreaViewModel(
                     .toMutableList()
                     .also { points -> points.add(point) }
                     .toList(),
+                startZoomAnimation = false
+            )
+        }
+    }
+
+    private fun observeAreaNames() {
+        polygonAreaService
+            .getPolygonAreaNames()
+            .onEach(::onAreaNamesSuccess)
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
+    }
+
+    private fun onAreaNamesSuccess(areaNames: List<AreaEntity>) {
+        _state.update {
+            it.copy(
+                savedAreaNames = areaNames.map { area -> area.areaName },
+                startZoomAnimation = false
             )
         }
     }
@@ -121,15 +177,38 @@ class PolygonAreaViewModel(
         return polygon.size > 1 && polygon.first().nearTo(_state.value.selectedPoint)
     }
 
-    fun clearDialogueState() {
-        viewModelScope.launch {
-            delay(500)
-            _state.update {
-                it.copy(
-                    areaName = "",
-                )
-            }
+    private fun onClearDialogueSuccess() {
+        _state.update {
+            it.copy(
+                areaName = "",
+                startZoomAnimation = false
+            )
         }
     }
 
+    private fun clearDialogueState() {
+        safeCallAction(
+            action = { delay(500) },
+            onSuccess = { onClearDialogueSuccess() },
+            onFailure = { onDismissDialogue() }
+        )
+    }
+
+    private fun onError(error: Throwable) {
+        _state.update {
+            it.copy(errorState = error.message)
+        }
+    }
+
+    private fun <T> safeCallAction(
+        action: suspend () -> T,
+        onSuccess: (T) -> Unit = {},
+        onFailure: (Throwable) -> Unit = {},
+    ): Job {
+        return viewModelScope.launch {
+            runCatching { action() }
+                .onSuccess(onSuccess)
+                .onFailure(onFailure)
+        }
+    }
 }

@@ -1,27 +1,30 @@
 package com.example.mapbox.data
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.mapbox.data.entity.AreaEntity
 import com.example.mapbox.data.entity.PolygonPointCrossRef
 import com.example.mapbox.data.entity.PolygonPointEntity
-import com.example.mapbox.data.entity.relation.PolygonWithPoints
+import com.example.mapbox.data.relation.PolygonWithArea
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PolygonDao {
+    @Query("SELECT DISTINCT area.* FROM ${DatabaseConstant.AREA_TABLE} As area ORDER BY dateAdded DESC")
+    fun getPolygonAreaNames(): Flow<List<AreaEntity>>
+
     @Query(
         """
-        SELECT * FROM ${DatabaseConstant.AREA_TABLE} AS polygon
+        SELECT * FROM ${DatabaseConstant.AREA_TABLE} AS area
         LEFT JOIN ${DatabaseConstant.POLYGON_POINT_CROSS_TABLE} AS crossRef
-        ON polygon.areaName = crossRef.areaName
-    """
+        ON area.areaName = crossRef.areaName
+        WHERE area.areaName = :areaName
+        """
     )
-    suspend fun getAllPolygons(): List<PolygonWithPoints>
+    suspend fun getPolygonByAreaName(areaName: String): List<PolygonWithArea>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPolygonPoints(points: List<PolygonPointEntity>): List<Long>
 
     @Upsert

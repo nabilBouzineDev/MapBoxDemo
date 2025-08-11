@@ -6,7 +6,7 @@ import com.example.mapbox.data.DatabaseConstant
 
 @Entity(
     tableName = DatabaseConstant.POLYGON_POINT_CROSS_TABLE,
-    primaryKeys = ["areaName", "pointId"],
+    primaryKeys = ["areaName", "polygonId"],
     foreignKeys = [
         ForeignKey(
             entity = AreaEntity::class,
@@ -16,13 +16,13 @@ import com.example.mapbox.data.DatabaseConstant
         ),
         ForeignKey(
             entity = PolygonPointEntity::class,
-            parentColumns = ["pointId"],
-            childColumns = ["pointId"],
+            parentColumns = ["polygonId"],
+            childColumns = ["polygonId"],
             onDelete = ForeignKey.CASCADE
         ),
     ]
 )
 data class PolygonPointCrossRef(
     val areaName: String,
-    val pointId: Long
+    val polygonId: Long
 )
