@@ -10,7 +10,7 @@ import kotlin.math.sqrt
 
 private const val EARTH_RADIUS_METERS = 6_371_000.0
 
-fun Point.nearTo(other: Point, thresholdMeters: Double = 30.0) =
+fun Point.nearTo(other: Point, thresholdMeters: Double = 50.0) =
     this == other || this.distanceTo(other) <= thresholdMeters
 
 fun List<Point>.isPolygonClosed() = this.size > 2 && this.first() == this.last()

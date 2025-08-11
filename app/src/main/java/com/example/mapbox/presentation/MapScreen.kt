@@ -101,7 +101,7 @@ fun MapBoxContent(
             mapViewState.flyTo(
                 cameraOptions = cameraOptions {
                     center(Point.fromLngLat(zoomedPointLong, zoomedPointLat))
-                    zoom(15.0)
+                    zoom(12.0)
                     bearing(0.0)
                     pitch(0.0)
                     build()
@@ -145,6 +145,13 @@ fun MapBoxContent(
                     )
                 }
             }
+        },
+        compass = {
+            Compass(
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(top = 16.dp)
+            )
         },
         attribution = {},
         logo = {},
